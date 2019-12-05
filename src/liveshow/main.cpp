@@ -6,21 +6,32 @@ using namespace std;
 
 int main(int argc, char*argv) {
 	VideoCapture cam;
-	string url = "";
+	string url = "rtmp://192.1681.1.11/live";
 	namedWindow("video");
 	Mat frame;
-	if (cam.open(0)) {
-		cout << "open cam success" << endl;
+	cam.open(0);
+	try
+	{
+		if (!cam.isOpened()) {
+			throw exception("cam open failed");
+		}
+		cout << "cam open success" << endl;
+		for (;;) {
+			//读取rtsp视频帧，解码视频帧
+			if (!cam.grab()) {
+				continue;
+			}
+			//yuv转换为rgb
+			if (!cam.retrieve(frame)) {
+				continue;
+			}
+			imshow("video", frame);
+			waitKey(1);
+		}
 	}
-	else {
-		cout << "open cam failed" << endl;
-		waitKey(0);
-		return -1;
+	catch (exception &ex) {
+		cerr << ex.what() << endl;
 	}
-	for (;;) {
-		cam.read(frame);
-		imshow("video", frame);
-		waitKey(1);
-	}
+	getchar();
 	return 0;
 }
